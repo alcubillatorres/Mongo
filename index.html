@@ -1,0 +1,226 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- Bootstrap CSS Bootstrap, es un framework originalmente creado por Twitter, 
+      que permite crear interfaces web con CSS y JavaScript, cuya particularidad es la de adaptar 
+      la interfaz del sitio web al tamaño del dispositivo en que se visualice. -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+
+    <title>Perfil Base</title>
+      
+
+   <!--  Algunos cambios a los estilos CSS para adaptar el formato -->
+    <style type="text/css">
+
+      table{
+        width: auto !important;
+        }
+
+      .bg-info {
+        background-color: #29b1e4!important;
+      }
+
+      .btn-primary{
+        background-color: #29b1e4!important;
+        color: black;
+      }
+
+    </style>
+
+  </head>
+  <body>
+    <div class="container">
+      <div class="text-center">
+        <img src="/axtel.png">
+      </div>
+      <!-- El elemento <form> define cómo se enviarán los datos.
+        En el caso del tipo de envío tenemos la posibilidad de hacerlo mediante un formato GET (con los datos visibles)
+         o POST (con los datos no visibles). -->
+      <form action="/addFilter" method="POST">
+        <h3 class="display-6 text-center bg-info" >Perfil de Filtrado Web</h3>
+        <div class="col-auto">
+          <div class="form-group">
+            <br/>
+            <div class="mb-3 row">
+              <label for="nombrePerfil" class="col-sm-2 col-form-label"><b>Nombre del Perfil</b></label>
+              <div class="col-sm-10 my-auto">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="nombrePerfil"
+                  size="2"
+                  name="nombrePerfilWeb"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-auto">
+          <table class="table table-sm table-primary table-hover">
+            <thead>
+              <tr >
+                <th colspan="2">General Interest - Business</th>
+              </tr>
+            </thead>
+            <tbody>
+              <input style="display:none" id="armed-hidden" name="armedH" value="false">
+              <tr>
+                <td scope="row">
+                  <label class="form-check-label" for="armedForces">
+                    Armed Forces
+                  </label>
+                </td>
+                <td>
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="armedForces"
+                    name="armedForces"
+                    onclick="checkArmed()"
+                  />
+                </td>
+              </tr>
+              <input style="display:none" id="business-hidden" name="businessH" value="false">
+              <tr>
+                <td scope="row">
+                  <label class="form-check-label" for="business">
+                    Business
+                  </label>
+                </td>
+                <td>
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="business"
+                    name="Business"
+                    onclick="checkBusiness()"
+                  />
+                </td>
+              </tr>
+              <input style="display:none" id="charitable-hidden" name="charitableH" value="false">
+              <tr>
+                <td scope="row">
+                  <label class="form-check-label" for="charitable">
+                    Charitable Organizations
+                  </label>
+                </td>
+                <td>
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="charitable"
+                    name="charitable"
+                    onclick="checkCharitable()"
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <table class="table table-sm table-primary mb-0">
+            <thead>
+                <tr>
+                  <th colspan="2">SITIOS ESPECIFICOS A PERMITIR</th>
+                </tr>
+            </thead>
+          </table>
+          <div class="field_wrapper">
+            <div>
+              <input type="text" name="sitios_permitidos[]" value=""/>
+              <a href="javascript:void(0);" class="add_button" title="Add field"><img src="add-icon.png" height="25px" width="25px"/></a>
+            </div>
+          </div>
+          <br/>
+          <button class="btn btn-primary" type="submit">
+            Guardar Registro
+          </button>
+          <br><br>
+        </div>
+      </form>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+    <script 
+      src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"
+    ></script>
+    <script type="text/javascript">
+      $(document).ready(function(){
+          var maxField = 10; //Input fields increment limitation
+          var addButton = $('.add_button'); //Add button selector
+          var wrapper = $('.field_wrapper'); //Input field wrapper
+          var fieldHTML = '<div><input type="text" name="sitios_permitidos[]" value=""/><a href="javascript:void(0);" class="remove_button" title="Remove field"><img src="/remove-icon.png" height="25px" width="25px"/></a></div>'; //New input field html 
+          var x = 1; //Initial field counter is 1
+          $(addButton).click(function(){ //Once add button is clicked
+              if(x < maxField){ //Check maximum number of input fields
+                  x++; //Increment field counter
+                  $(wrapper).append(fieldHTML); // Add field html
+              }
+          });
+          $(wrapper).on('click', '.remove_button', function(e){ //Once remove button is clicked
+              e.preventDefault();
+              $(this).parent('div').remove(); //Remove field html
+              x--; //Decrement field counter
+          });
+      });
+
+      function checkBusiness(){
+        //Business
+        if(document.getElementById("business").checked==true){
+          document.getElementById("business-hidden").value=true;
+        }else {
+          document.getElementById("business-hidden").value=false;
+        }
+      } 
+
+      function checkArmed(){
+        //ArmedForces
+        if(document.getElementById("armedForces").checked==true){
+          document.getElementById("armed-hidden").value=true;
+        }else {
+          document.getElementById("armed-hidden").value=false;
+        }
+      }
+
+      function checkCharitable(){
+        //Charitable
+        if(document.getElementById("charitable").checked==true){
+          document.getElementById("charitable-hidden").value=true;
+        }else {
+          document.getElementById("charitable-hidden").value=false;
+        }
+      }
+    </script>
+  </body>
+</html>
+
