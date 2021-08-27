@@ -14,12 +14,17 @@ los datos utilizando las funciones comunes de MongoDB.*/
 var express = require("express");
 var app = express();
 const mongoose = require("mongoose");
-//const url = "mongodb://172.18.10.79/perfilSeguridad"
-const url = "mongodb://127.0.0.1/perfilSeguridad";
-
-var port = 4000; // sets port 3000 to default or unless otherwise specified in the environment
+require('dotenv').config();
 const cors = require("cors");
-const { Int32 } = require("mongodb");
+
+const id = process.env.ID
+const ip = process.env.IP
+var port = process.env.PORT
+var coleccion = process.env.COLECCION
+var documento = process.env.DOCUMENTO
+const url = "mongodb://"+ip+"/"+coleccion   
+
+
 
 app.set("port", port);
 app.listen(app.get("port"));
@@ -64,16 +69,13 @@ db.on("error", (err) => {
   console.error("connection error:", err);
 });
 
-//definimos el esquema de uno nuevo
-var wanSchema = new mongoose.Schema({
+///////////////////////////////////////definimos el esquema////////////////////////////////////////////////
+var perfilSchema = new mongoose.Schema({
   Wan: [
     {
       TipoInterface: String,
       Alias: String,
-      Tipo: String,
-      RutaDefault: Boolean,
-      NextHop: String,
-      RutasEstaticas:Array,
+      TipoServicio: String,
       TipoIP: String,
       DireccionIP: String,
       Mascara: String,
@@ -88,7 +90,7 @@ var wanSchema = new mongoose.Schema({
       LanAlias: String,
       LanDireccionIP: String,
       LanMascara: String,
-      LanVlan: String,
+      LanVlan: Number,
       LanDHCP: String,
       DHCPFrom: String,
       DHCPTo: String,
@@ -96,42 +98,38 @@ var wanSchema = new mongoose.Schema({
       LanServidorDNS2: String,
     },
   ],
+  Rutas: [
+    {
+      Default: Boolean,
+      Red: String,
+      Mascara: String,
+      Gateway: String,
+      Prioridad: Number,
+      Alias: String,
+    },
+  ],
 });
+///////////////////////////////////////fin definimos el esquema////////////////////////////////////////////
 
-//definimos el modelo en base al esquema
-var Servicios = mongoose.model("configuraciones", wanSchema);
+//////////////////////definimos el modelo en base al esquema//////////////////////////////////////////////
+var Servicios = mongoose.model(documento, perfilSchema);
 
-//Guardamos en la bd
+//////////////////////////////////////Guardamos en la bd///////////////////////////////////////////////////
 app.post("/", (req, res) => {
-  //const id = "60e6840d443b8d13bcfc8d56"; //remota
-  const id = "610ca5db0a831b20c80247d2"; //local
-  console.log(req.body.RutasEstaticasMPLS);
+  
+  console.log("buscando actualizar" , id)
   const { TipoInterface } = req.body;
-
+  /////////////////////////////////////////////////////guardado WAN///////////////////////////////////////////////
   if (TipoInterface === "WAN") {
-    const {
-      Alias,
-      TipoServicio,
-      RutaDefault,
-      NextHop,
-      RutasEstaticas,
-      TipoIP,
-      DireccionIP,
-      Mascara,
-      Gateway
-    } = req.body;
-
-    const Vlan = parseInt(req.body.Vlan);
+    const { Alias, TipoServicio, TipoIP, DireccionIP, Mascara, Gateway, Vlan} =
+      req.body;
 
     var myData = new Servicios({
       Wan: [
         {
           TipoInterface: TipoInterface,
           Alias: Alias,
-          Tipo: TipoServicio,
-          RutaDefault: RutaDefault,
-          NextHop: NextHop,
-          RutasEstaticas: RutasEstaticas,
+          TipoServicio: TipoServicio,
           TipoIP: TipoIP,
           DireccionIP: DireccionIP,
           Mascara: Mascara,
@@ -142,6 +140,7 @@ app.post("/", (req, res) => {
     });
 
     Servicios.findOne({ _id: id }, "_id", async function (err, newServicios) {
+      
       if (newServicios) {
         //actualizamos el servicio
 
@@ -153,10 +152,7 @@ app.post("/", (req, res) => {
                 {
                   TipoInterface: TipoInterface,
                   Alias: Alias,
-                  Tipo: TipoServicio,
-                  RutaDefault: RutaDefault,
-                  NextHop: NextHop,
-                  RutasEstaticas: RutasEstaticas,
+                  TipoServicio: TipoServicio,
                   TipoIP: TipoIP,
                   DireccionIP: DireccionIP,
                   Mascara: Mascara,
@@ -184,6 +180,7 @@ app.post("/", (req, res) => {
       }
     });
   } else {
+    ///////////////////////////////////////////////guardado LAN/////////////////////////////////////////////////
     const {
       LanAlias,
       LanDireccionIP,
@@ -236,7 +233,6 @@ app.post("/", (req, res) => {
             },
           }
         );
-        //console.log(newServicios);
         res.status(200);
         res.send("Agregado con éxito");
       } else {
@@ -248,7 +244,6 @@ app.post("/", (req, res) => {
           console.log("Save");
         });
       }
-
       if (err) {
         return err;
       }
@@ -256,7 +251,7 @@ app.post("/", (req, res) => {
   }
 });
 
-//consultamos las wan/lan del cliente
+//////////////////////////consultamos las wan/lan del cliente//////////////////////////////////////
 app.get("/", (req, res) => {
   console.log("Buscando el servicio", req.query.id);
   Servicios.findOne({ _id: req.query.id }).then(
@@ -269,4 +264,63 @@ app.get("/", (req, res) => {
       res.status(400).send(e);
     }
   );
+});
+//////////////////////////fin consulta las wan/lan del cliente/////////////////////////////////////////
+
+////////////////////////////////guardado Ruteo //////////////////////////////////////////////////////
+
+app.post("/rutas", (req, res) => {
+  
+  const { Alias, Default, Red, Mascara, Gateway, Prioridad } = req.body;
+
+  var myData = new Servicios({
+    Rutas: [
+      {
+        Alias: Alias,
+        Default: Default,
+        Red: Red,
+        Mascara: Mascara,
+        Gateway: Gateway,
+        Prioridad: Prioridad,
+      },
+    ],
+  });
+
+  Servicios.findOne({ _id: id }, "_id", async function (err, newServicios) {
+    if (newServicios) {
+      //actualizamos el servicio
+
+      await Servicios.updateOne(
+        { _id: newServicios._id },
+        {
+          $addToSet: {
+            Rutas: [
+              {
+                Alias: Alias,
+                Default: Default,
+                Red: Red,
+                Mascara: Mascara,
+                Gateway: Gateway,
+                Prioridad: Prioridad
+              },
+            ],
+          },
+        }
+      );
+      res.status(200);
+      res.send("Agregado con éxito");
+    } else {
+      //Elemento nuevo en la bd
+      myData.save(function (err, myData) {
+        if (err) return res.status(500).send(err);
+        res.status(200);
+        res.send("Exito");
+        console.log("Save");
+      });
+    }
+
+    if (err) {
+      return err;
+    }
+  });
 });
