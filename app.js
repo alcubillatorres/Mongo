@@ -14,21 +14,20 @@ los datos utilizando las funciones comunes de MongoDB.*/
 var express = require("express");
 var app = express();
 const mongoose = require("mongoose");
-require('dotenv').config();
+require("dotenv").config();
 const cors = require("cors");
 
-const id = process.env.ID
-const ip = process.env.IP
-var port = process.env.PORT
-var coleccion = process.env.COLECCION
-var documento = process.env.DOCUMENTO
-const url = "mongodb://"+ip+"/"+coleccion   
+const id = process.env.ID;
+const ip = process.env.IP;
+var port = process.env.PORT;
+var coleccion = process.env.COLECCION;
+var documento = process.env.DOCUMENTO;
 
-
+const url = "mongodb://" + ip + "/" + coleccion;
 
 app.set("port", port);
 app.listen(app.get("port"));
-console.log("Listen on port", port);
+console.log("Escuchando en el puerto", port);
 
 app.use(express.json());
 
@@ -62,14 +61,14 @@ mongoose.Promise = global.Promise;
 
 var db = mongoose.connection;
 db.once("open", (_) => {
-  console.log("Database connected:", url);
+  console.log("Conectado a la base de datos", url);
 });
 
 db.on("error", (err) => {
-  console.error("connection error:", err);
+  console.error("Error de conexión", err);
 });
 
-///////////////////////////////////////definimos el esquema////////////////////////////////////////////////
+///////////////////////////////////////definimos los esquemas////////////////////////////////////////////////
 var perfilSchema = new mongoose.Schema({
   Wan: [
     {
@@ -109,21 +108,26 @@ var perfilSchema = new mongoose.Schema({
     },
   ],
 });
-///////////////////////////////////////fin definimos el esquema////////////////////////////////////////////
+
+var clienteSchema = new mongoose.Schema({
+  Nombre: String,
+  Key: String,
+  Numero: String,
+});
+///////////////////////////////////////fin definimos los esquemas////////////////////////////////////////////
 
 //////////////////////definimos el modelo en base al esquema//////////////////////////////////////////////
-var Servicios = mongoose.model(documento, perfilSchema);
+var Servicios = mongoose.model("configuraciones", perfilSchema);
+var Clientes = mongoose.model("clientes", clienteSchema);
 
 //////////////////////////////////////Guardamos en la bd///////////////////////////////////////////////////
 app.post("/", (req, res) => {
-  
-  console.log("buscando actualizar" , id)
+  console.log("buscando actualizar", id);
   const { TipoInterface } = req.body;
   /////////////////////////////////////////////////////guardado WAN///////////////////////////////////////////////
   if (TipoInterface === "WAN") {
-    const { Alias, TipoServicio, TipoIP, DireccionIP, Mascara, Gateway, Vlan} =
+    const { Alias, TipoServicio, TipoIP, DireccionIP, Mascara, Gateway, Vlan } =
       req.body;
-
     var myData = new Servicios({
       Wan: [
         {
@@ -140,7 +144,6 @@ app.post("/", (req, res) => {
     });
 
     Servicios.findOne({ _id: id }, "_id", async function (err, newServicios) {
-      
       if (newServicios) {
         //actualizamos el servicio
 
@@ -180,7 +183,7 @@ app.post("/", (req, res) => {
       }
     });
   } else {
-    ///////////////////////////////////////////////guardado LAN/////////////////////////////////////////////////
+    ///////////////////////////////////////////////Guardado LAN/////////////////////////////////////////////////
     const {
       LanAlias,
       LanDireccionIP,
@@ -267,10 +270,9 @@ app.get("/", (req, res) => {
 });
 //////////////////////////fin consulta las wan/lan del cliente/////////////////////////////////////////
 
-////////////////////////////////guardado Ruteo //////////////////////////////////////////////////////
+////////////////////////////////Guardado Ruteo //////////////////////////////////////////////////////
 
 app.post("/rutas", (req, res) => {
-  
   const { Alias, Default, Red, Mascara, Gateway, Prioridad } = req.body;
 
   var myData = new Servicios({
@@ -301,7 +303,7 @@ app.post("/rutas", (req, res) => {
                 Red: Red,
                 Mascara: Mascara,
                 Gateway: Gateway,
-                Prioridad: Prioridad
+                Prioridad: Prioridad,
               },
             ],
           },
@@ -323,4 +325,38 @@ app.post("/rutas", (req, res) => {
       return err;
     }
   });
+});
+////////////////////////////////Fin Guardado Ruteo //////////////////////////////////////////////////////
+
+//////////////////////////consulta Clientes//////////////////////////////////////
+app.get("/clientes", (req, res) => {
+  console.log("Buscando clientes");
+  Clientes.find(async function (err, newClientes) {
+    if (newClientes) {
+      res.send(newClientes);
+    }
+  });
+});
+//////////////////////////fin consulta Clientes/////////////////////////////////////////
+
+///////////////////////////inicio guardado Clientes/////////////////////////////////////////
+
+app.post("/clientes", (req, res) => {
+  const { Nombre, Numero, Key } = req.body;
+
+  var myData = new Clientes({
+    Nombre,
+    Key,
+    Numero,
+  });
+
+  myData.save()
+    .then((user) => {
+         res.status(200);
+    })
+    .catch((error) => {
+        console.log(err);
+        res.send(400, "Bad Request");
+
+    });
 });
