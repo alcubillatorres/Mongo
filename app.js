@@ -111,7 +111,6 @@ var perfilSchema = new mongoose.Schema({
 
 var clienteSchema = new mongoose.Schema({
   Nombre: String,
-  Key: String,
   Numero: String,
 });
 ///////////////////////////////////////fin definimos los esquemas////////////////////////////////////////////
@@ -342,21 +341,35 @@ app.get("/clientes", (req, res) => {
 ///////////////////////////inicio guardado Clientes/////////////////////////////////////////
 
 app.post("/clientes", (req, res) => {
-  const { Nombre, Numero, Key } = req.body;
+  const { Nombre, Numero } = req.body;
 
   var myData = new Clientes({
     Nombre,
-    Key,
     Numero,
   });
 
-  myData.save()
-    .then((user) => {
-         res.status(200);
-    })
-    .catch((error) => {
-        console.log(err);
-        res.send(400, "Bad Request");
-
-    });
+  Clientes.findOne({ Nombre: Nombre }, "Nombre", async function (err, newClientes) {
+    if (newClientes) {
+      res.status(200);
+      console.log("ya estaba")
+      res.send("Ese cliente ya estaba en la BD");
+    } else {
+      //Elemento nuevo en la bd
+      myData.save()
+      .then((user) => {
+           res.status(200);
+           console.log("Cliente Agregado exitosamente")
+      })
+      .catch((error) => {
+          console.log(err);
+          res.send(400, "Bad Request");
+  
+      });
+    }
+    if (err) {
+      return err;
+    }
+  });
 });
+
+
