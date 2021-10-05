@@ -137,8 +137,17 @@ app.post("/", (req, res) => {
   const { TipoInterface } = req.body;
   /////////////////////////////////////////////////////guardado WAN///////////////////////////////////////////////
   if (TipoInterface === "WAN") {
-    const { Alias, TipoServicio, TipoIP, DireccionIP, Mascara, Gateway, Vlan, Id_Sitio } =
-      req.body;
+    const {
+      Alias,
+      TipoServicio,
+      TipoIP,
+      DireccionIP,
+      Mascara,
+      Gateway,
+      Vlan,
+      Id_Sitio,
+    } = req.body;
+
     var myData = new Configuraciones({
       Id_Sitio: Id_Sitio,
       Wan: [
@@ -155,45 +164,48 @@ app.post("/", (req, res) => {
       ],
     });
 
-    Configuraciones.findOne({ Id_Sitio: Id_Sitio }, "Id_Sitio", async function (err, newServicios) {
-      if (newServicios) {
-        //actualizamos la configuración
+    Configuraciones.findOne(
+      { Id_Sitio: Id_Sitio },
+      async function (err, newServicios) {
+        if (newServicios) {
+          //actualizamos la configuración
 
-        await Servicios.updateOne(
-          { Id_Sitio: newServicios.Id_Sitio },
-          {
-            $addToSet: {
-              Wan: [
-                {
-                  TipoInterface: TipoInterface,
-                  Alias: Alias,
-                  TipoServicio: TipoServicio,
-                  TipoIP: TipoIP,
-                  DireccionIP: DireccionIP,
-                  Mascara: Mascara,
-                  Gateway: Gateway,
-                  Vlan: Vlan,
-                },
-              ],
-            },
-          }
-        );
-        res.status(200);
-        res.send("Agregado con éxito");
-      } else {
-        //Elemento nuevo en la bd
-        myData.save(function (err, myData) {
-          if (err) return res.status(500).send(err);
+          await Configuraciones.updateOne(
+            { Id_Sitio: newServicios.Id_Sitio },
+            {
+              $addToSet: {
+                Wan: [
+                  {
+                    TipoInterface: TipoInterface,
+                    Alias: Alias,
+                    TipoServicio: TipoServicio,
+                    TipoIP: TipoIP,
+                    DireccionIP: DireccionIP,
+                    Mascara: Mascara,
+                    Gateway: Gateway,
+                    Vlan: Vlan,
+                  },
+                ],
+              },
+            }
+          );
           res.status(200);
-          res.send("Exito");
-          console.log("Save");
-        });
-      }
+          res.send("Agregado con éxito");
+        } else {
+          //Elemento nuevo en la bd
+          myData.save(function (err, myData) {
+            if (err) return res.status(500).send(err);
+            res.status(200);
+            res.send("Exito");
+            console.log("Save");
+          });
+        }
 
-      if (err) {
-        return err;
+        if (err) {
+          return err;
+        }
       }
-    });
+    );
   } else {
     ///////////////////////////////////////////////Guardado LAN/////////////////////////////////////////////////
     const {
@@ -206,10 +218,10 @@ app.post("/", (req, res) => {
       DHCPTo,
       LanServidorDNS1,
       LanServidorDNS2,
-      Id_Sitio
+      Id_Sitio,
     } = req.body;
 
-    var myData = new Servicios({
+    var myData = new Configuraciones({
       Id_Sitio: Id_Sitio,
       Lan: [
         {
@@ -227,70 +239,85 @@ app.post("/", (req, res) => {
       ],
     });
 
-    Configuraciones.findOne({ Id_Sitio: Id_Sitio }, "Id_Sitio", async function (err, newServicios) {
-      if (newServicios) {
-        await Servicios.updateOne(
-          { Id_Sitio: newServicios.Id_Sitio },
-          {
-            $addToSet: {
-              Id_Sitio: Id_Sitio,
-              Lan: [
-                {
-                  TipoInterface: TipoInterface,
-                  LanAlias: LanAlias,
-                  LanDireccionIP: LanDireccionIP,
-                  LanMascara: LanMascara,
-                  LanVlan: LanVlan,
-                  LanDHCP: LanDHCP,
-                  DHCPFrom: DHCPFrom,
-                  DHCPTo: DHCPTo,
-                  LanServidorDNS1: LanServidorDNS1,
-                  LanServidorDNS2: LanServidorDNS2,
-                },
-              ],
-            },
-          }
-        );
-        res.status(200);
-        res.send("Agregado con éxito");
-      } else {
-        //Elemento nuevo en la bd
-        myData.save(function (err, myData) {
-          if (err) return res.status(500).send(err);
+    Configuraciones.findOne(
+      { Id_Sitio: Id_Sitio },
+      async function (err, newServicios) {
+        if (newServicios) {
+          await Configuraciones.updateOne(
+            { Id_Sitio: newServicios.Id_Sitio },
+            {
+              $addToSet: {
+                Lan: [
+                  {
+                    TipoInterface: TipoInterface,
+                    LanAlias: LanAlias,
+                    LanDireccionIP: LanDireccionIP,
+                    LanMascara: LanMascara,
+                    LanVlan: LanVlan,
+                    LanDHCP: LanDHCP,
+                    DHCPFrom: DHCPFrom,
+                    DHCPTo: DHCPTo,
+                    LanServidorDNS1: LanServidorDNS1,
+                    LanServidorDNS2: LanServidorDNS2,
+                  },
+                ],
+              },
+            }
+          );
           res.status(200);
-          res.send("Exito");
-          console.log("Save");
-        });
+          res.send("Agregado con éxito");
+        } else {
+          //Elemento nuevo en la bd
+          myData.save(function (err, myData) {
+            if (err) return res.status(500).send(err);
+            res.status(200);
+            res.send("Exito");
+            console.log("Save");
+          });
+        }
+        if (err) {
+          return err;
+        }
+      }
+    );
+  }
+});
+
+//////////////////////////consultamos las wan/lan del sitio existente//////////////////////////////////////
+app.get("/configuracion", (req, res) => {
+  console.log("Buscando la Configuración del Sitio", req.query.id);
+  const Id_Sitio=  req.query.id
+
+  Configuraciones.findOne({ Id_Sitio: Id_Sitio},
+ 
+    async function (err, newServicios) {
+      if (newServicios) {
+        res.status(200);
+        res.send(newServicios);
+      } else{
+        res.status(201)
+        res.send("No se encontraron datos")
       }
       if (err) {
         return err;
       }
-    });
-  }
-});
-
-//////////////////////////consultamos las wan/lan del cliente//////////////////////////////////////
-app.get("/", (req, res) => {
-  console.log("Buscando la Configuración del Sitio", req.query.id);
-  Configuraciones.findOne({ id_Sitio: req.query.id }).then(
-    (configuracion) => {
-      if (configuracion) {
-        res.send(configuracion);
-      }
-    },
-    (e) => {
-      res.status(400).send(e);
     }
   );
+
+  
 });
-//////////////////////////fin consulta las wan/lan del cliente/////////////////////////////////////////
+//////////////////////////fin consulta las wan/lan del sitio existente/////////////////////////////////////////
+
+
+
+
 
 ////////////////////////////////Guardado Ruteo //////////////////////////////////////////////////////
 
 app.post("/rutas", (req, res) => {
   const { Alias, Default, Red, Mascara, Gateway, Prioridad } = req.body;
 
-  var myData = new Servicios({
+  var myData = new Configuraciones({
     Rutas: [
       {
         Alias: Alias,
@@ -303,11 +330,11 @@ app.post("/rutas", (req, res) => {
     ],
   });
 
-  Servicios.findOne({ _id: id }, "_id", async function (err, newServicios) {
+  Configuraciones.findOne({ _id: id }, "_id", async function (err, newServicios) {
     if (newServicios) {
       //actualizamos el servicio
 
-      await Servicios.updateOne(
+      await Configuraciones.updateOne(
         { _id: newServicios._id },
         {
           $addToSet: {
@@ -350,6 +377,9 @@ app.get("/clientes", (req, res) => {
     if (newClientes) {
       res.send(newClientes);
     }
+    if (err) {
+      return err;
+    }
   });
 });
 
@@ -383,7 +413,7 @@ app.post("/clientes", (req, res) => {
             res.send(user);
             console.log("Cliente Agregado exitosamente");
           })
-          .catch((error) => {
+          .catch((err) => {
             console.log(err);
             res.send(400, "Bad Request");
           });
@@ -394,12 +424,14 @@ app.post("/clientes", (req, res) => {
     }
   );
 });
+
 //////////////////////////fin guardado Clientes/////////////////////////////////////////
 
 ///////////////////////////inicio guardado sitios////////////////////////////////////////
 app.post("/sitios", (req, res) => {
   const { Sitio, Key, Cliente_id, Marca, Modelo } = req.body;
-
+  
+  console.log("alta sitio", Cliente_id)
   var myData = new Sitios({
     Sitio,
     Key,
@@ -408,23 +440,22 @@ app.post("/sitios", (req, res) => {
     Cliente_id,
   });
 
-  console.log ("Guardando Sitio")
- 
-  myData
-  .save()
-  .then((sitio) => {
-    res.status(200);
-    res.send(sitio);
-    console.log("Sitio Agregado exitosamente");
-  })
-  .catch((error) => {
-    console.log(error);
-    res.send(400, "Bad Request");
-  });
   
-})
-//////////////////////////fin guardado sitios/////////////////////////////////////////
 
+    myData
+      .save()
+      .then((sitio) => {
+        res.status(200);
+        res.send(sitio._id);
+        console.log("Sitio Agregado Exitosamente", sitio._id);
+      }).catch((error) => {
+        console.log(error);
+        res.send(400, "Bad Request");
+      });
+ 
+});
+
+//////////////////////////fin guardado sitios/////////////////////////////////////////
 
 ///////////////////////////inicio consulta de  sitios////////////////////////////////////////
 app.get("/sitios", (req, res) => {
