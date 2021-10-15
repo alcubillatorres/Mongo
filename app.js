@@ -61,6 +61,7 @@ mongoose.connect(url, {
 mongoose.Promise = global.Promise;
 
 var db = mongoose.connection;
+
 db.once("open", (_) => {
   console.log("Conectado a la base de datos", url);
 });
@@ -132,9 +133,10 @@ var Clientes = mongoose.model("clientes", clienteSchema);
 var Sitios = mongoose.model("sitios", sitioSchema);
 
 //////////////////////////////////////Guardamos en la bd///////////////////////////////////////////////////
-app.post("/", (req, res) => {
-  console.log("Buscando configuraciones del Sitio", id);
+app.post("/configuraciones", (req, res) => {
+  console.log("Buscando configuraciones existentes del Sitio", req.body.Id_Sitio);
   const { TipoInterface } = req.body;
+  console.log("Tipo interface", TipoInterface)
   /////////////////////////////////////////////////////guardado WAN///////////////////////////////////////////////
   if (TipoInterface === "WAN") {
     const {
@@ -168,6 +170,7 @@ app.post("/", (req, res) => {
       { Id_Sitio: Id_Sitio },
       async function (err, newServicios) {
         if (newServicios) {
+          console.log("si se encontro configuracion")
           //actualizamos la configuración
 
           await Configuraciones.updateOne(
@@ -189,20 +192,32 @@ app.post("/", (req, res) => {
               },
             }
           );
-          res.status(200);
-          res.send("Agregado con éxito");
+          Configuraciones.findOne(
+            { Id_Sitio: Id_Sitio },
+            async function (err, newServicios) {
+              if (newServicios) {
+                console.log("Wan Agregada con exito")
+                res.status(200);
+                res.send(newServicios);
+              }
+              if (err) {
+              return err;
+              }
+          });
         } else {
           //Elemento nuevo en la bd
-          myData.save(function (err, myData) {
-            if (err) return res.status(500).send(err);
+          console.log("Elemento nuevo")
+          myData
+          .save()
+          .then((user) => {
             res.status(200);
-            res.send("Exito");
-            console.log("Save");
+            res.send(user);
+            console.log("Wan Agregada exitosamente");
+          })
+          .catch((err) => {
+            console.log(err);
+            res.send(400, "Bad Request");
           });
-        }
-
-        if (err) {
-          return err;
         }
       }
     );
@@ -239,12 +254,12 @@ app.post("/", (req, res) => {
       ],
     });
 
-    Configuraciones.findOne(
+   Configuraciones.findOne(
       { Id_Sitio: Id_Sitio },
-      async function (err, newServicios) {
-        if (newServicios) {
+      async function (err, newConfiguracion) {
+        if (newConfiguracion) {
           await Configuraciones.updateOne(
-            { Id_Sitio: newServicios.Id_Sitio },
+            { Id_Sitio: newConfiguracion.Id_Sitio },
             {
               $addToSet: {
                 Lan: [
@@ -264,38 +279,55 @@ app.post("/", (req, res) => {
               },
             }
           );
-          res.status(200);
-          res.send("Agregado con éxito");
+          Configuraciones.findOne(
+            { Id_Sitio: Id_Sitio },
+            async function (err, newServicios) {
+              if (newServicios) {
+                console.log("Lan Agregada con exito")
+                res.status(200);
+                res.send(newServicios);
+              }
+              if (err) {
+              return err;
+              }
+          });
         } else {
           //Elemento nuevo en la bd
-          myData.save(function (err, myData) {
-            if (err) return res.status(500).send(err);
+          console.log("Lan nueva")
+          myData
+          .save()
+          .then((user) => {
             res.status(200);
-            res.send("Exito");
-            console.log("Save");
+            res.send(user);
+            console.log("Lan nueva agregada exitosamente");
+          })
+          .catch((err) => {
+            console.log(err);
+            res.send(400, "Bad Request");
           });
         }
-        if (err) {
-          return err;
-        }
+
       }
     );
   }
 });
 
 //////////////////////////consultamos las wan/lan del sitio existente//////////////////////////////////////
-app.get("/configuracion", (req, res) => {
-  console.log("Buscando la Configuración del Sitio", req.query.id);
-  const Id_Sitio=  req.query.id
+app.get("/configuraciones", (req, res) => {
+  console.log("Buscando la Configuración del Sitio", req.query.Id_Sitio);
+  const  Id_Sitio =  req.query.Id_Sitio
+  console.log("Id_sitio", Id_Sitio)
 
   Configuraciones.findOne({ Id_Sitio: Id_Sitio},
- 
     async function (err, newServicios) {
-      if (newServicios) {
+      console.log("Configuraciones:", newServicios)
+      if (newServicios !== null) {
         res.status(200);
         res.send(newServicios);
+        console.log("newservicios", newServicios)
       } else{
         res.status(201)
+        console.log("No se encontraron")
         res.send("No se encontraron datos")
       }
       if (err) {
@@ -389,6 +421,7 @@ app.get("/clientes", (req, res) => {
 
 app.post("/clientes", (req, res) => {
   const { Nombre, Numero } = req.body;
+  console.log("entro a /postcliente",req.body)
 
   var myData = new Clientes({
     Nombre,
