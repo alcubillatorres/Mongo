@@ -63,7 +63,7 @@ mongoose.Promise = global.Promise;
 var db = mongoose.connection;
 
 db.once("open", (_) => {
-  console.log("Conectado a la base de datos", url);
+  console.log("Conectado a la Base de Datos:", url);
 });
 
 db.on("error", (err) => {
@@ -125,19 +125,21 @@ var sitioSchema = new mongoose.Schema({
   Cliente_id: String,
 });
 
-///////////////////////////////////////fin definimos los esquemas////////////////////////////////////////////
+///////////////////////////////////////fin definimos los esquemas/////////////////////////////////////////
 
 //////////////////////definimos el modelo en base al esquema//////////////////////////////////////////////
 var Configuraciones = mongoose.model("configuraciones", configuracionSchema);
 var Clientes = mongoose.model("clientes", clienteSchema);
 var Sitios = mongoose.model("sitios", sitioSchema);
 
-//////////////////////////////////////Guardamos en la bd///////////////////////////////////////////////////
+//////////////////////////////////////Guardado de las configuraciones//////////////////////////////////////
 app.post("/configuraciones", (req, res) => {
-  console.log("Buscando configuraciones existentes del Sitio", req.body.Id_Sitio);
+  console.log("Buscando Configuraciones existentes del Sitio", req.body.Id_Sitio);
   const { TipoInterface } = req.body;
   console.log("Tipo interface", TipoInterface)
-  /////////////////////////////////////////////////////guardado WAN///////////////////////////////////////////////
+
+
+  /////////////////////////////////////////////////////Guardado WAN/////////////////////////////////////////
   if (TipoInterface === "WAN") {
     const {
       Alias,
@@ -170,9 +172,7 @@ app.post("/configuraciones", (req, res) => {
       { Id_Sitio: Id_Sitio },
       async function (err, newServicios) {
         if (newServicios) {
-          console.log("si se encontro configuracion")
-          //actualizamos la configuración
-
+          //actualizamos la configuración en caso de encontrar registro existente
           await Configuraciones.updateOne(
             { Id_Sitio: newServicios.Id_Sitio },
             {
@@ -196,7 +196,7 @@ app.post("/configuraciones", (req, res) => {
             { Id_Sitio: Id_Sitio },
             async function (err, newServicios) {
               if (newServicios) {
-                console.log("Wan Agregada con exito")
+                console.log("¡Wan Agregada!")
                 res.status(200);
                 res.send(newServicios);
               }
@@ -205,14 +205,13 @@ app.post("/configuraciones", (req, res) => {
               }
           });
         } else {
-          //Elemento nuevo en la bd
-          console.log("Elemento nuevo")
+          //Elemento nuevo en la BD
           myData
           .save()
           .then((user) => {
             res.status(200);
             res.send(user);
-            console.log("Wan Agregada exitosamente");
+            console.log("¡Wan Agregada!");
           })
           .catch((err) => {
             console.log(err);
@@ -222,7 +221,7 @@ app.post("/configuraciones", (req, res) => {
       }
     );
   } else {
-    ///////////////////////////////////////////////Guardado LAN/////////////////////////////////////////////////
+   ///////////////////////////////////////////////Guardado LAN/////////////////////////////////////////////////
     const {
       LanAlias,
       LanDireccionIP,
@@ -283,7 +282,7 @@ app.post("/configuraciones", (req, res) => {
             { Id_Sitio: Id_Sitio },
             async function (err, newServicios) {
               if (newServicios) {
-                console.log("Lan Agregada con exito")
+                console.log("¡Lan Agregada!")
                 res.status(200);
                 res.send(newServicios);
               }
@@ -293,13 +292,12 @@ app.post("/configuraciones", (req, res) => {
           });
         } else {
           //Elemento nuevo en la bd
-          console.log("Lan nueva")
           myData
           .save()
           .then((user) => {
             res.status(200);
             res.send(user);
-            console.log("Lan nueva agregada exitosamente");
+            console.log("¡Lan Agregada!");
           })
           .catch((err) => {
             console.log(err);
@@ -311,41 +309,31 @@ app.post("/configuraciones", (req, res) => {
     );
   }
 });
+//////////////////////////////////////Fin guardado de las configuraciones///////////////////////////////////
 
-//////////////////////////consultamos las wan/lan del sitio existente//////////////////////////////////////
+//////////////////////////Consulta de Wan/Lan de un sitio existente////////////////////////////////////////
 app.get("/configuraciones", (req, res) => {
-  console.log("Buscando la Configuración del Sitio", req.query.Id_Sitio);
+  console.log("Buscando la Configuración del Sitio:", req.query.Id_Sitio);
   const  Id_Sitio =  req.query.Id_Sitio
-  console.log("Id_sitio", Id_Sitio)
-
   Configuraciones.findOne({ Id_Sitio: Id_Sitio},
     async function (err, newServicios) {
-      console.log("Configuraciones:", newServicios)
       if (newServicios !== null) {
         res.status(200);
         res.send(newServicios);
-        console.log("newservicios", newServicios)
       } else{
         res.status(201)
-        console.log("No se encontraron")
-        res.send("No se encontraron datos")
+        res.send("No se encontraron Configuraciones")
       }
       if (err) {
         return err;
       }
     }
   );
-
-  
 });
-//////////////////////////fin consulta las wan/lan del sitio existente/////////////////////////////////////////
+//////////////////////////Fin consulta de Wan/Lan de un sitio existente///////////////////////////////
 
 
-
-
-
-////////////////////////////////Guardado Ruteo //////////////////////////////////////////////////////
-
+////////////////////////////////Guardado Ruteo////////////////////////////////////////////////////////
 app.post("/rutas", (req, res) => {
   const { Alias, Default, Red, Mascara, Gateway, Prioridad } = req.body;
 
@@ -365,7 +353,6 @@ app.post("/rutas", (req, res) => {
   Configuraciones.findOne({ _id: id }, "_id", async function (err, newServicios) {
     if (newServicios) {
       //actualizamos el servicio
-
       await Configuraciones.updateOne(
         { _id: newServicios._id },
         {
@@ -394,7 +381,6 @@ app.post("/rutas", (req, res) => {
         console.log("Save");
       });
     }
-
     if (err) {
       return err;
     }
@@ -402,9 +388,9 @@ app.post("/rutas", (req, res) => {
 });
 ////////////////////////////////Fin Guardado Ruteo //////////////////////////////////////////////////////
 
-//////////////////////////consulta Clientes//////////////////////////////////////
+//////////////////////////Consulta de Clientes//////////////////////////////////////////////////////////
 app.get("/clientes", (req, res) => {
-  console.log("Buscando clientes");
+  console.log("Buscando clientes....");
   Clientes.find(async function (err, newClientes) {
     if (newClientes) {
       res.send(newClientes);
@@ -414,14 +400,11 @@ app.get("/clientes", (req, res) => {
     }
   });
 });
+//////////////////////////Fin consulta de Clientes//////////////////////////////////////////////////////
 
-//////////////////////////fin consulta Clientes/////////////////////////////////////////
-
-///////////////////////////inicio guardado Clientes/////////////////////////////////////////
-
+///////////////////////////Guardado de Clientes/////////////////////////////////////////////////////
 app.post("/clientes", (req, res) => {
   const { Nombre, Numero } = req.body;
-  console.log("entro a /postcliente",req.body)
 
   var myData = new Clientes({
     Nombre,
@@ -434,7 +417,7 @@ app.post("/clientes", (req, res) => {
     async function (err, newClientes) {
       if (newClientes) {
         res.status(200);
-        console.log("El cliente ya se encontraba en la BD");
+        console.log("El cliente ya se encontraba guardado");
         const { _id } = newClientes;
         res.send(newClientes);
       } else {
@@ -444,7 +427,7 @@ app.post("/clientes", (req, res) => {
           .then((user) => {
             res.status(200);
             res.send(user);
-            console.log("Cliente Agregado exitosamente");
+            console.log("¡Cliente Agregado exitosamente!");
           })
           .catch((err) => {
             console.log(err);
@@ -457,14 +440,13 @@ app.post("/clientes", (req, res) => {
     }
   );
 });
+//////////////////////////Fin guardado de Clientes/////////////////////////////////////////////////////
 
-//////////////////////////fin guardado Clientes/////////////////////////////////////////
-
-///////////////////////////inicio guardado sitios////////////////////////////////////////
+///////////////////////////Guardado de Sitios/////////////////////////////////////////////////////////
 app.post("/sitios", (req, res) => {
   const { Sitio, Key, Cliente_id, Marca, Modelo } = req.body;
-  
-  console.log("alta sitio", Cliente_id)
+  console.log("Dando de Alta el Sitio:", Cliente_id)
+
   var myData = new Sitios({
     Sitio,
     Key,
@@ -473,26 +455,43 @@ app.post("/sitios", (req, res) => {
     Cliente_id,
   });
 
+
+  Sitios
+  .findOne({Sitio: Sitio, Key: Key})
+    .exec(
+    async function (err, newSitio) {
+      console.log(newSitio)
+      if (newSitio) {
+        console.log("¡Sitio Existente!")
+        res.status(200);
+        res.send(newSitio);
+      }else {
+        //Elemento nuevo en la BD
+        myData
+        .save()
+        .then((sitio) => {
+          res.status(200);
+          res.send(sitio._id);
+          console.log("¡Sitio Agregado Exitosamente!", sitio._id);
+        })
+        .catch((err) => {
+          console.log(err);
+          res.send(400, "Bad Request");
+        });
+      }
+      if (err) {
+        return err;
+      }
+    }
+    )
   
 
-    myData
-      .save()
-      .then((sitio) => {
-        res.status(200);
-        res.send(sitio._id);
-        console.log("Sitio Agregado Exitosamente", sitio._id);
-      }).catch((error) => {
-        console.log(error);
-        res.send(400, "Bad Request");
-      });
- 
 });
+//////////////////////////Fin guardado de sitios//////////////////////////////////////////////////////
 
-//////////////////////////fin guardado sitios/////////////////////////////////////////
-
-///////////////////////////inicio consulta de  sitios////////////////////////////////////////
+///////////////////////////Consulta de Sitios/////////////////////////////////////////////////////////
 app.get("/sitios", (req, res) => {
-  console.log("Buscando los sitios del cliente", req.query.id);
+  console.log("Buscando los sitios del cliente:", req.query.id);
   Sitios.find({ Cliente_id: req.query.id }).then(
     (sitio) => {
       if (sitio) {
@@ -504,4 +503,4 @@ app.get("/sitios", (req, res) => {
     }
   );
 });
-//////////////////////////fin consulta de  sitios/////////////////////////////////////////
+//////////////////////////Fin consulta de Sitios//////////////////////////////////////////////////////
