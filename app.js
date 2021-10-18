@@ -114,7 +114,7 @@ var configuracionSchema = new mongoose.Schema({
   ],
   Scripts: [
     {
-      Texto: String,
+      Nombre: String,
     }
   ]
 });
@@ -535,3 +535,49 @@ app.get("/python", (req, res) => {
 });
 
 
+app.post("/archivo", (req, res) => {
+  const Id_Sitio = req.body.Id_Sitio;
+  const nombre = req.body.nombre;
+
+  console.log("Guardando archivo", Id_Sitio);
+
+  var myData = new Configuraciones({
+    Id_Sitio: Id_Sitio,
+    Scripts: [
+      {
+        Nombre: String,
+      }
+    ]
+  });
+  try{
+    Configuraciones.findOne(
+      { Id_Sitio: Id_Sitio },
+      async function (err, newConfiguracion){
+        if(newConfiguracion){
+          await Configuraciones.updateOne(
+            {Id_Sitio: newConfiguracion.Id_Sitio},
+            {
+              $addToSet: {
+                Scripts: [
+                  {
+                    Nombre: nombre,
+                  }
+                ]
+              }
+            }
+          )
+        }else{
+          myData.save()
+          .then((config)=>{
+            console.log("Archivo agregado")
+            res.status(200).send(config)
+          })
+        }
+      }
+    )
+  } catch (error) {
+    console.log(error)
+    return next(error)
+  }
+ 
+});
