@@ -17,6 +17,8 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 const cors = require("cors");
 const { ObjectID } = require("bson");
+const { spawn } = require('child_process');
+const { text } = require("body-parser");
 
 const id = process.env.ID;
 const ip = process.env.IP;
@@ -110,6 +112,11 @@ var configuracionSchema = new mongoose.Schema({
       Alias: String,
     },
   ],
+  Scripts: [
+    {
+      Texto: String,
+    }
+  ]
 });
 
 var clienteSchema = new mongoose.Schema({
@@ -391,14 +398,15 @@ app.post("/rutas", (req, res) => {
 //////////////////////////Consulta de Clientes//////////////////////////////////////////////////////////
 app.get("/clientes", (req, res) => {
   console.log("Buscando clientes....");
-  Clientes.find(async function (err, newClientes) {
-    if (newClientes) {
-      res.send(newClientes);
-    }
-    if (err) {
-      return err;
-    }
-  });
+  try{
+    Clientes.find(function(e, clientes){
+      if(clientes){
+        res.send(clientes)
+      }
+    })
+  }catch (e) {
+    next(e)
+  }
 });
 //////////////////////////Fin consulta de Clientes//////////////////////////////////////////////////////
 
@@ -431,7 +439,7 @@ app.post("/clientes", (req, res) => {
           })
           .catch((err) => {
             console.log(err);
-            res.send(400, "Bad Request");
+            res.status(400).send("Bad Request")
           });
       }
       if (err) {
@@ -504,3 +512,26 @@ app.get("/sitios", (req, res) => {
   );
 });
 //////////////////////////Fin consulta de Sitios//////////////////////////////////////////////////////
+
+app.get("/python", (req, res) => {
+  const Id_Sitio = req.body.Id_Sitio;
+
+  console.log("Ejecutando python");
+  try{
+    const ls = spawn('py', ['config.py']);
+ 
+    ls.on('close', (code) => {
+      console.log(`child process exited with code ${code}`);
+      res.send({message: 'Finalizo'});
+    });
+
+    
+    
+    // res.sendFile(__dirname +'/configuracion.txt')
+  } catch (error) {
+    return next(error)
+  }
+ 
+});
+
+
