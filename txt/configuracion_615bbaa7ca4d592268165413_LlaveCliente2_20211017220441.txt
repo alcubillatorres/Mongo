@@ -1,6 +1,0 @@
-_id
-Id_Sitio
-Wan
-Lan
-Rutas
-__v

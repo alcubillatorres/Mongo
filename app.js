@@ -17,8 +17,7 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 const cors = require("cors");
 const { ObjectID } = require("bson");
-const { spawn } = require('child_process');
-const { text } = require("body-parser");
+var {PythonShell} = require('python-shell')
 
 const id = process.env.ID;
 const ip = process.env.IP;
@@ -517,20 +516,20 @@ app.get("/python", (req, res) => {
   const Id_Sitio = req.body.Id_Sitio;
 
   console.log("Ejecutando python");
-  try{
-    const ls = spawn('py', ['config.py']);
+
+   
+
+   /*  const ls = spawn('py', ['config.py']);
  
     ls.on('close', (code) => {
       console.log(`child process exited with code ${code}`);
       res.send({message: 'Finalizo'});
     });
-
+ */
     
     
     // res.sendFile(__dirname +'/configuracion.txt')
-  } catch (error) {
-    return next(error)
-  }
+
  
 });
 
@@ -570,7 +569,6 @@ app.post("/archivo", (req, res) => {
           myData.save()
           .then((config)=>{
             console.log("Archivo agregado")
-            res.status(200).send(config)
           })
         }
       }
@@ -579,5 +577,18 @@ app.post("/archivo", (req, res) => {
     console.log(error)
     return next(error)
   }
+
+  var options = {
+    mode: 'text',
+    args: [nombre]
+  };
+
+  PythonShell.run('config.py', options, function (err, results) {
+    if (err) 
+      throw err;
+    // Results is an array consisting of messages collected during execution
+    console.log('results: %j', results);
+    res.sendFile(__dirname +"/txt/"+nombre)
+  });
  
 });
