@@ -5,7 +5,7 @@ import sys
  
 nombre = sys.argv[1]
 # conexión
-con = MongoClient('localhost',27017)
+con = MongoClient('172.18.10.79',27017)
 db = con.perfilSeguridad
 configuracion = db.configuraciones
 resultado = configuracion.find_one()
