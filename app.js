@@ -391,7 +391,7 @@ app.post("/rutas", (req, res) => {
       return err;
     }
   });
-});
+}); 
 ////////////////////////////////Fin Guardado Ruteo //////////////////////////////////////////////////////
 
 //////////////////////////Consulta de Clientes//////////////////////////////////////////////////////////
@@ -535,10 +535,11 @@ app.get("/python", (req, res) => {
 
 
 app.post("/archivo", (req, res) => {
-  const Id_Sitio = req.body.Id_Sitio;
-  const nombre = req.body.nombre;
+ 
+  const {nombre, Id_Sitio, key, NombreCliente, Modelo} = req.body;
 
-  console.log("Guardando archivo", Id_Sitio);
+  const fileName = "ARCHIVO_DE_CONFIG_"+nombre
+  console.log("Guardando archivo", fileName);
 
   var myData = new Configuraciones({
     Id_Sitio: Id_Sitio,
@@ -559,7 +560,7 @@ app.post("/archivo", (req, res) => {
               $addToSet: {
                 Scripts: [
                   {
-                    Nombre: nombre,
+                    Nombre: fileName,
                   }
                 ]
               }
@@ -580,15 +581,15 @@ app.post("/archivo", (req, res) => {
 
   var options = {
     mode: 'text',
-    args: [nombre]
+    args: [nombre, Id_Sitio, NombreCliente, Modelo, key]
   };
 
-  PythonShell.run('config.py', options, function (err, results) {
+  PythonShell.run('configuracion.py', options, function (err, results) {
     if (err) 
       throw err;
     // Results is an array consisting of messages collected during execution
-    console.log('results: %j', results);
-    res.sendFile(__dirname +"/txt/"+nombre)
+    //console.log('results: %j', results);
+    res.sendFile(__dirname +"/txt/"+fileName)
   });
  
 });

@@ -1,0 +1,36 @@
+                                    REPORTE DE CONFIGURACION
+
+CLIENTE: Malta_Texo
+OS: Sistema
+LLAVE: 1-1W7V6SX
+SITE: 617b274d6093ad3660289c12
+FECHA: 2021-10-28
+
+********************************** CONFIGURACIÓN DE INTERFACES WAN **********************************
+
+INTERFACE WAN1
+VALIDACION DE INFORMACION: EXITOSO
+STATUS DE CONFIGURACION: EXITOSO
+
+********************************** CONFIGURACIÓN DE INTERFACES LAN **********************************
+
+
+INTERFACE LAN1
+VALIDACION DE INFORMACION: EXITOSO
+DETALLE DE VALIDACION: DIRECCIONAMIENTO VALIDO | DHCP VALIDO | DNS1 VALIDO | | DNS2 VALIDO | 
+STATUS DE CONFIGURACION: EXITOSO
+
+********************************** CONFIGURACIÓN DE RUTEO **********************************
+
+
+********************************** CONFIGURACIÓN DHCP SERVER **********************************
+
+STATUS DE CONFIGURACION: EXITOSO
+
+********************************** CONFIGURACIÓN SNMP **********************************
+
+STATUS DE CONFIGURACION: EXITOSO
+
+********************************** CONFIGURACIÓN USUARIOS **********************************
+
+STATUS DE CONFIGURACION: EXITOSO
