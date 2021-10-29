@@ -14,8 +14,8 @@ import pymongo
 from pymongo import MongoClient
  
 # conexión
-#con = MongoClient('172.18.10.79',27017)
-con = MongoClient('localhost',27017)
+con = MongoClient('172.18.10.79',27017)
+#con = MongoClient('localhost',27017)
 
 #base de datos
 db = con.perfilSeguridad
