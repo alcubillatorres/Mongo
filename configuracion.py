@@ -16,7 +16,7 @@ from pymongo import MongoClient
  
 # conexión
 #con = MongoClient('172.18.10.79',27017)
-con = MongoClient('localhost',27017)
+con = MongoClient('172.18.10.79',27017)
 
 #base de datos
 db = con.perfilSeguridad
@@ -72,7 +72,7 @@ fw_models = (
     ('Fortigate 50E',('wan1','wan2','internal7','internal6','internal1','internal2','internal3','internal4','internal5','dmz')),
     ('Fortigate 60E',('wan1','wan2','internal7','internal6','internal1','internal2','internal3','internal4','internal5','dmz')),
     ('Fortigate 80E',('wan1','wan2','internal7','internal6','internal1','internal2','internal3','internal4','internal5','dmz')),
-    ('Fortigate 100E',('wan1','wan2','internal7','internal6','internal1','internal2','internal3','internal4','internal5','dmz')),
+    ('Fortigate 100F',('wan1','wan2','internal7','internal6','internal1','internal2','internal3','internal4','internal5','dmz')),
     ('Fortigate 200E',('wan1','wan2','internal7','internal6','internal1','internal2','internal3','internal4','internal5','dmz')),
     ('Fortigate 300E',('port1','port2','port3','port4','port5','port6','port7','port8','port9','port10')),
     ('Fortigate 400E',('wan1','wan2','internal7','internal6','internal1','internal2','internal3','internal4','internal5','dmz')),
